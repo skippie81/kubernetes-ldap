@@ -7,9 +7,9 @@ import (
 	"os"
 
 	"github.com/golang/glog"
-	"github.com/apprenda-kismatic/kubernetes-ldap/auth"
-	"github.com/apprenda-kismatic/kubernetes-ldap/ldap"
-	"github.com/apprenda-kismatic/kubernetes-ldap/token"
+	"auth"
+	"ldap"
+	"token"
 
 	goflag "flag"
 
