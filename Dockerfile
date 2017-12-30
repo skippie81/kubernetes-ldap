@@ -1,0 +1,14 @@
+FROM golang:alpine as builder
+RUN apk add -U curl && apk add -U git && apk add -U make
+COPY  src/ /go/src/
+WORKDIR /go/src/
+RUN make
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+COPY --from=builder /go/src/bin/kubernetes-ldap /kubernetes-ldap/kubernetes-ldap
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["kubernetes-ldap"]

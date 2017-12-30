@@ -19,7 +19,7 @@ type LDAPTokenIssuer struct {
 	LDAPAuthenticator ldap.Authenticator
 	TokenSigner       token.Signer
 	GroupFilter	  string
-	ExpireTime        uint
+	ExpireTime        int
 }
 
 func (lti *LDAPTokenIssuer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {

@@ -8,6 +8,8 @@ _obj
 _test
 .vscode
 bin
+.idea
+
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -38,3 +40,10 @@ Session.vim
 
 # Glade will recreate this, so don't need in source control
 vendor/
+signing.priv
+signing.pub
+Would skip repository src/github.com/golang/glog
+Would skip repository src/github.com/square/go-jose
+Would skip repository src/github.com/go-ldap/ldap
+Would skip repository src/github.com/spf13/pflag
+Would skip repository src/gopkg.in/asn1-ber.v1
