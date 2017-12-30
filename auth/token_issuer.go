@@ -9,6 +9,7 @@ import (
 	"github.com/golang/glog"
 	"strings"
 	"regexp"
+	"time"
 )
 
 // LDAPTokenIssuer issues cryptographically secure tokens after authenticating the
@@ -81,6 +82,7 @@ func (lti *LDAPTokenIssuer) getGroupsFromMembersOf(membersOf []string) []string 
 func (lti *LDAPTokenIssuer) createToken(ldapEntry *goldap.Entry) *token.AuthToken {
 	return &token.AuthToken{
 		Username: ldapEntry.GetAttributeValue("mail"),
+		Exp: time.Now().Add(time.Hour * time.Duration(12)),
 		Groups: lti.getGroupsFromMembersOf(ldapEntry.GetAttributeValues("memberOf")),
 		Assertions: map[string]string{
 			"ldapServer": lti.LDAPServer,

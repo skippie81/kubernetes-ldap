@@ -10,6 +10,7 @@ import (
 	"os"
 
 	jose "github.com/square/go-jose"
+	"time"
 )
 
 const (
@@ -22,6 +23,7 @@ var curveEll = elliptic.P256()
 // AuthToken contains information about the authenticated user
 type AuthToken struct {
 	Username   string
+	Exp time.Time
 	Groups []string
 	Assertions map[string]string
 }

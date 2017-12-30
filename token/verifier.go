@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 
 	"github.com/square/go-jose"
+	"time"
+	"errors"
 )
 
 // Verifier verifies the serialized representation of a token
@@ -58,5 +60,11 @@ func (ev *ecdsaVerifier) Verify(s string) (token *AuthToken, err error) {
 		token = nil
 		return
 	}
+
+	//check epire time
+	if time.Now().Before(token.Exp) {
+		return nil, errors.New("Token has expired!")
+	}
+
 	return
 }
