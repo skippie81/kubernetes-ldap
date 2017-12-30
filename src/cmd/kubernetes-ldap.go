@@ -131,7 +131,7 @@ func main() {
 	// starting public server
 	go glog.Fatal(publicServer.ListenAndServe())
 	// starting api server
-	glog.Fatal(server.ListenAndServeTLS(*flTLSCertFile, *flTLSPrivateKeyFile))
+	glog.Fatal(sslServer.ListenAndServeTLS(*flTLSCertFile, *flTLSPrivateKeyFile))
 
 }
 
