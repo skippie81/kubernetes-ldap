@@ -103,7 +103,7 @@ func main() {
 	sslRouter.Handle("/ldapAuth", ldapTokenIssuer)
 
 	// Endpoint for livenessProbe
-	publicRouter.Handle("/healthz", healthz)
+	publicRouter.HandleFunc("/healthz", healthz)
 
 	TLSConfig := &tls.Config{
 		// Change default from SSLv3 to TLSv1.0 (because of POODLE vulnerability)
