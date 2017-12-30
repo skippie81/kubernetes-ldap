@@ -29,6 +29,8 @@ var flSearchUserDN = flag.String("ldap-search-user-dn", "", "Search user DN for 
 var flSearchUserPassword = flag.String("ldap-search-user-password", "", "Search user password")
 var flSkipLdapTLSVerification = flag.Bool("ldap-skip-tls-verification", false, "Skip LDAP server TLS verification")
 
+var flGroupFilter = flag.String("group-filter","","Regex to filter group membership")
+
 var flServerPort = flag.Uint("port", 4000, "Local port this proxy server will run on")
 var flhHealthzPort = flag.Uint("health-port", 8080, "port to server readynessprobe on")
 var flTLSCertFile = flag.String("tls-cert-file", "",
@@ -94,6 +96,7 @@ func main() {
 	ldapTokenIssuer := &auth.LDAPTokenIssuer{
 		LDAPAuthenticator: ldapClient,
 		TokenSigner:       tokenSigner,
+		GroupFilter:       fmt.Sprintf("%s",flGroupFilter),
 	}
 
 	// Endpoint for authenticating with token

@@ -18,6 +18,7 @@ type LDAPTokenIssuer struct {
 	LDAPServer        string
 	LDAPAuthenticator ldap.Authenticator
 	TokenSigner       token.Signer
+	GroupFilter	  string
 }
 
 func (lti *LDAPTokenIssuer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
@@ -65,6 +66,14 @@ func (lti *LDAPTokenIssuer) getGroupsFromMembersOf(membersOf []string) []string 
 			}
 
 			group := re.ReplaceAllString(element, "")
+
+			// run the group filter if defined
+			if lti.GroupFilter != "" {
+				if match, _ := regexp.Match(lti.GroupFilter,[]byte(group)); !match {
+					//this group does not match the group name filter
+					continue
+				}
+			}
 
 			if _, ok := uniqueGroups[group]; ok {
 				//this group has been considered and added already
