@@ -30,6 +30,7 @@ var flSearchUserPassword = flag.String("ldap-search-user-password", "", "Search 
 var flSkipLdapTLSVerification = flag.Bool("ldap-skip-tls-verification", false, "Skip LDAP server TLS verification")
 
 var flGroupFilter = flag.String("group-filter","","Regex to filter group membership")
+var flTokenExpireTime = flag.Uint("token-expire-time",12,"Time in hours the issued token is valid")
 
 var flServerPort = flag.Uint("port", 4000, "Local port this proxy server will run on")
 var flhHealthzPort = flag.Uint("health-port", 8080, "port to server readynessprobe on")
@@ -97,6 +98,7 @@ func main() {
 		LDAPAuthenticator: ldapClient,
 		TokenSigner:       tokenSigner,
 		GroupFilter:       fmt.Sprintf("%s",flGroupFilter),
+		ExpireTime:        *flTokenExpireTime,
 	}
 
 	// Endpoint for authenticating with token

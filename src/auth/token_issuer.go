@@ -19,6 +19,7 @@ type LDAPTokenIssuer struct {
 	LDAPAuthenticator ldap.Authenticator
 	TokenSigner       token.Signer
 	GroupFilter	  string
+	ExpireTime        uint
 }
 
 func (lti *LDAPTokenIssuer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
@@ -91,7 +92,7 @@ func (lti *LDAPTokenIssuer) getGroupsFromMembersOf(membersOf []string) []string 
 func (lti *LDAPTokenIssuer) createToken(ldapEntry *goldap.Entry) *token.AuthToken {
 	return &token.AuthToken{
 		Username: ldapEntry.GetAttributeValue("mail"),
-		Exp: time.Now().Add(time.Hour * time.Duration(12)),
+		Exp: time.Now().Add(time.Hour * time.Duration(lti.ExpireTime)),
 		Groups: lti.getGroupsFromMembersOf(ldapEntry.GetAttributeValues("memberOf")),
 		Assertions: map[string]string{
 			"ldapServer": lti.LDAPServer,
