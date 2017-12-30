@@ -129,7 +129,7 @@ func main() {
 	glog.Infof("Serving /healthz on %s", fmt.Sprintf(":%d", *flhHealthzPort))
 
 	// starting public server
-	go glog.Fatal(publicServer.ListenAndServe())
+	go publicServer.ListenAndServe()
 	// starting api server
 	glog.Fatal(sslServer.ListenAndServeTLS(*flTLSCertFile, *flTLSPrivateKeyFile))
 
