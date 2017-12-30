@@ -3,8 +3,9 @@ package auth
 import (
 	"net/http"
 
-	"ldap"
-	"token"
+	"kubernetes-ldap/ldap"
+	"kubernetes-ldap/token"
+
 	goldap "github.com/go-ldap/ldap"
 	"github.com/golang/glog"
 	"strings"

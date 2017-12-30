@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"token"
+	"kubernetes-ldap/token"
 	"github.com/golang/glog"
 )
 

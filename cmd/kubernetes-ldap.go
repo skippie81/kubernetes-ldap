@@ -7,9 +7,9 @@ import (
 	"os"
 	"github.com/golang/glog"
 
-	"auth"
-	"ldap"
-	"token"
+	"kubernetes-ldap/auth"
+	"kubernetes-ldap/ldap"
+	"kubernetes-ldap/token"
 
 	goflag "flag"
 	flag "github.com/spf13/pflag"

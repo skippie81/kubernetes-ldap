@@ -9,6 +9,9 @@ _test
 .vscode
 bin
 .idea
+vendor
+
+dep
 
 
 # Architecture specific extensions/prefixes

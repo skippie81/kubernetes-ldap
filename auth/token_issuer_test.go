@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"token"
+	"kubernetes-ldap/token"
 	"github.com/go-ldap/ldap"
 )
 

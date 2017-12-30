@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"token"
+	"kubernetes-ldap/token"
 )
 
 type dummyVerifier struct {
