@@ -30,6 +30,7 @@ var flSearchUserPassword = flag.String("ldap-search-user-password", "", "Search 
 var flSkipLdapTLSVerification = flag.Bool("ldap-skip-tls-verification", false, "Skip LDAP server TLS verification")
 
 var flServerPort = flag.Uint("port", 4000, "Local port this proxy server will run on")
+var flhHealthzPort = flag.Uint("health-port", 8080, "port to server readynessprobe on")
 var flTLSCertFile = flag.String("tls-cert-file", "",
 	"File containing x509 Certificate for HTTPS.  (CA cert, if any, concatenated after server cert).")
 var flTLSPrivateKeyFile = flag.String("tls-private-key-file", "", "File containing x509 private key matching --tls-cert-file.")
@@ -85,7 +86,8 @@ func main() {
 		TLSConfig:          ldapTLSConfig,
 	}
 
-	server := &http.Server{Addr: fmt.Sprintf(":%d", *flServerPort)}
+	publicRouter := http.NewServeMux()
+	sslRouter := http.NewServeMux()
 
 	webhook := auth.NewTokenWebhook(tokenVerifier)
 
@@ -95,20 +97,40 @@ func main() {
 	}
 
 	// Endpoint for authenticating with token
-	http.Handle("/authenticate", webhook)
+	sslRouter.Handle("/authenticate", webhook)
 
 	// Endpoint for token issuance after LDAP auth
-	http.Handle("/ldapAuth", ldapTokenIssuer)
+	sslRouter.Handle("/ldapAuth", ldapTokenIssuer)
 
 	// Endpoint for livenessProbe
-	http.Handle("/healthz", healthz)
+	publicRouter.Handle("/healthz", healthz)
 
-	glog.Infof("Serving on %s", fmt.Sprintf(":%d", *flServerPort))
-
-	server.TLSConfig = &tls.Config{
+	TLSConfig := &tls.Config{
 		// Change default from SSLv3 to TLSv1.0 (because of POODLE vulnerability)
 		MinVersion: tls.VersionTLS10,
 	}
+
+	//setting up servers
+	sslServer := &http.Server{
+		Addr: fmt.Sprintf(":%d", *flServerPort),
+		Handler: sslRouter,
+		TLSConfig: TLSConfig,
+	}
+
+	publicServer := &http.Server{
+		Addr: fmt.Sprintf(":%d", *flhHealthzPort),
+		Handler: publicRouter,
+		TLSConfig: TLSConfig,
+	}
+
+
+	glog.Infof("Serving /authenticate on %s", fmt.Sprintf(":%d", *flServerPort))
+	glog.Infof("Serving /ldapAuth on %s", fmt.Sprintf(":%d", *flServerPort))
+	glog.Infof("Serving /healthz on %s", fmt.Sprintf(":%d", *flhHealthzPort))
+
+	// starting public server
+	go glog.Fatal(publicServer.ListenAndServe())
+	// starting api server
 	glog.Fatal(server.ListenAndServeTLS(*flTLSCertFile, *flTLSPrivateKeyFile))
 
 }
