@@ -100,6 +100,9 @@ func main() {
 	// Endpoint for token issuance after LDAP auth
 	http.Handle("/ldapAuth", ldapTokenIssuer)
 
+	// Endpoint for livenessProbe
+	http.Handle("/healthz", healthz)
+
 	glog.Infof("Serving on %s", fmt.Sprintf(":%d", *flServerPort))
 
 	server.TLSConfig = &tls.Config{
@@ -115,4 +118,9 @@ func requireFlag(flagName string, flagValue *string) {
 		fmt.Fprintf(os.Stderr, "kubernetes-ldap: %s is required. \nUse -h flag for help.\n", flagName)
 		os.Exit(1)
 	}
+}
+
+func healthz(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("ok"))
 }
