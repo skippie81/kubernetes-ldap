@@ -38,6 +38,8 @@ var flTLSCertFile = flag.String("tls-cert-file", "",
 	"File containing x509 Certificate for HTTPS.  (CA cert, if any, concatenated after server cert).")
 var flTLSPrivateKeyFile = flag.String("tls-private-key-file", "", "File containing x509 private key matching --tls-cert-file.")
 
+var flUseTls = flag.Bool("use-tls",true,"Use tls for webhook server")
+
 func init() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s\n", usage)
@@ -52,8 +54,10 @@ func main() {
 	// validate required flags
 	requireFlag("--ldap-host", flLdapHost)
 	requireFlag("--ldap-base-dn", flBaseDN)
-	requireFlag("--tls-cert-file", flTLSCertFile)
-	requireFlag("--tls-private-key", flTLSPrivateKeyFile)
+	if *flUseTls {
+		requireFlag("--tls-cert-file", flTLSCertFile)
+		requireFlag("--tls-private-key", flTLSPrivateKeyFile)
+	}
 
 	glog.CopyStandardLogTo("INFO")
 
@@ -136,7 +140,11 @@ func main() {
 	// starting public server
 	go publicServer.ListenAndServe()
 	// starting api server
-	glog.Fatal(sslServer.ListenAndServeTLS(*flTLSCertFile, *flTLSPrivateKeyFile))
+	if *flUseTls {
+		glog.Fatal(sslServer.ListenAndServeTLS(*flTLSCertFile, *flTLSPrivateKeyFile))
+	} else {
+		glog.Fatal(sslServer.ListenAndServe())
+	}
 
 }
 
