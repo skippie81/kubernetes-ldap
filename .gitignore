@@ -9,6 +9,7 @@ _test
 .vscode
 bin
 .idea
+*.iml
 vendor
 
 dep

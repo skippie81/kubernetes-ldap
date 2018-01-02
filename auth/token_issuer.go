@@ -19,7 +19,7 @@ type LDAPTokenIssuer struct {
 	LDAPServer        string
 	LDAPAuthenticator ldap.Authenticator
 	TokenSigner       token.Signer
-	GroupFilter	  string
+	GroupFilter	      string
 	ExpireTime        int
 }
 
@@ -69,9 +69,12 @@ func (lti *LDAPTokenIssuer) getGroupsFromMembersOf(membersOf []string) []string 
 
 			group := re.ReplaceAllString(element, "")
 
+
 			// run the group filter if defined
 			if lti.GroupFilter != "" {
-				if match, _ := regexp.Match(lti.GroupFilter,[]byte(group)); !match {
+			  match,_ := regexp.MatchString(lti.GroupFilter,group)
+
+				if !match {
 					//this group does not match the group name filter
 					continue
 				}
