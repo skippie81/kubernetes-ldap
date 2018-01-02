@@ -11,14 +11,15 @@ import (
 	"kubernetes-ldap/ldap"
 	"kubernetes-ldap/token"
 
-	goflag "flag"
-	flag "github.com/spf13/pflag"
+	"flag"
 )
 
 const (
 	usage = "kubernetes-ldap <options>"
 )
 
+// Define input flags
+// LDAP options
 var flLdapUseInsecure = flag.Bool("ldap-insecure", false, "Disable LDAP TLS")
 var flLdapHost = flag.String("ldap-host", "", "Host or IP of the LDAP server")
 var flLdapPort = flag.Uint("ldap-port", 389, "LDAP server port")
@@ -27,16 +28,17 @@ var flUserLoginAttribute = flag.String("ldap-user-attribute", "uid", "LDAP Usern
 var flSearchUserDN = flag.String("ldap-search-user-dn", "", "Search user DN for this app to find users (e.g.: cn=admin,dc=example,dc=com).")
 var flSearchUserPassword = flag.String("ldap-search-user-password", "", "Search user password")
 var flSkipLdapTLSVerification = flag.Bool("ldap-skip-tls-verification", false, "Skip LDAP server TLS verification")
-
 var flGroupFilter = flag.String("group-filter","","Regex to filter group membership")
+
+// Token options
 var flTokenExpireTime = flag.Int("token-expire-time",12,"Time in hours the issued token is valid")
 
+// webhook http(s) server options
 var flServerPort = flag.Uint("port", 4000, "Local port this proxy server will run on")
 var flhHealthzPort = flag.Uint("health-port", 8080, "port to server readynessprobe on")
 var flTLSCertFile = flag.String("tls-cert-file", "",
 	"File containing x509 Certificate for HTTPS.  (CA cert, if any, concatenated after server cert).")
 var flTLSPrivateKeyFile = flag.String("tls-private-key-file", "", "File containing x509 private key matching --tls-cert-file.")
-
 var flUseTls = flag.Bool("use-tls",true,"Use tls for webhook server")
 
 func init() {
@@ -47,7 +49,7 @@ func init() {
 }
 
 func main() {
-	flag.CommandLine.AddGoFlagSet(goflag.CommandLine) // support glog flags
+	// parse the imput flags
 	flag.Parse()
 
 	// validate required flags
@@ -61,6 +63,7 @@ func main() {
 	glog.CopyStandardLogTo("INFO")
 
 	keypairFilename := "signing"
+	glog.Info("Generating token singing keypair")
 	if err := token.GenerateKeypair(keypairFilename); err != nil {
 		glog.Errorf("Error generating key pair: %v", err)
 	}
