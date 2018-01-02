@@ -15,11 +15,11 @@ import (
 	"k8s.io/api/core/v1"
 	"k8s.io/client-go/rest"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
-	"log"
+	"github.com/golang/glog"
 )
 
 const (
-	curveName = "P-256"    // curveName is the name of the ECDSA curve
+	curveName = "P-256"    // curveName is the name of the RSA curve
 )
 
 var curveEll = elliptic.P256()
@@ -32,6 +32,10 @@ type AuthToken struct {
 	Assertions map[string]string
 }
 
+const (
+	serviceAccountNamespaceFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
+)
+
 // GenerateKeypair generates a public and private RSA key, to be
 // used for signing and verifying authentication tokens.
 func GenerateKeypair(filename string) (err error) {
@@ -39,28 +43,25 @@ func GenerateKeypair(filename string) (err error) {
 	if err != nil {
 		return
 	}
-
 	keyPEM := x509.MarshalPKCS1PrivateKey(priv)
-
-	if err != nil {
-		return
-	}
 	pub := priv.Public()
-
 	pubKeyPEM, err := x509.MarshalPKIXPublicKey(pub)
 	if err != nil {
 		return fmt.Errorf("Error marshalling public key: %v", err)
 	}
 
+	// try to write generated keys to K8S in cluster secret
 	err = writeSigningSecret(keyPEM,pubKeyPEM)
 	// if seret write returns error whe are not using a secret
 	// so just write the generated data to the key files
 	if err == nil {
+		glog.Info("Running in kubernetes cluster")
 		// if secret was ceated sucessfully or was already existing
 		// we read the secret to use keypair in the secret if it was already present
+		glog.Info("Reading stored secret")
 		secret,err := readSigningSecret()
 		if err != nil {
-			log.Fatal("error reading secret")
+			glog.Fatal("error reading secret")
 		}
 		// now we write the content of the secert to the files
 		keyPEM = secret.Data["signing.priv"]
@@ -68,8 +69,7 @@ func GenerateKeypair(filename string) (err error) {
 
 	}
 
-	log.Println("Writing key data to files")
-
+	glog.Info("Storing keypair in local files")
 	err = ioutil.WriteFile(filename+".priv", keyPEM, os.FileMode(0600))
 	err = ioutil.WriteFile(filename+".pub", pubKeyPEM, os.FileMode(0644))
 
@@ -113,6 +113,14 @@ func getNamespace() (ns string) {
 	if  os.Getenv("MY_NAMESPACE") != "" {
 		ns = os.Getenv("MY_NAMESPACE")
 	}
+	if _,err := os.Stat(serviceAccountNamespaceFile); err == nil {
+		namespace,err := ioutil.ReadFile(serviceAccountNamespaceFile)
+		if err != nil {
+			glog.Errorf("Error reading serviceaccount namespace: %v",err)
+			ns = string(namespace)
+		}
+	}
+	glog.Infof("Running in K8S namespace: %s",ns)
 	return
 }
 
@@ -128,14 +136,14 @@ func getK8sClient() *kubernetes.Clientset {
 	// creates the in-cluster config
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 
 	// creates the clientset
 	clientset, err := kubernetes.NewForConfig(config)
 
 	if err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 	return clientset
 }
