@@ -106,7 +106,7 @@ func main() {
 		TokenSigner:       	tokenSigner,
 		GroupFilter:       	*flGroupFilter,
 		ExpireTime:        	*flTokenExpireTime,
-		UsernameLDAPAttribute 	*flUsernameAttribute,
+		UsernameLDAPAttribute: 	*flUsernameAttribute,
 	}
 
 	// Endpoint for authenticating with token

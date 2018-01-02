@@ -103,7 +103,6 @@ func (lti *LDAPTokenIssuer) getGroupsFromMembersOf(membersOf []string) []string 
 }
 
 func (lti *LDAPTokenIssuer) createToken(ldapEntry *goldap.Entry) *token.AuthToken {
-	// if attribute for username is empty use mail
 	if lti.UsernameLDAPAttribute == "" {
 		lti.UsernameLDAPAttribute = "mail"
 	}
