@@ -100,7 +100,7 @@ func main() {
 	ldapTokenIssuer := &auth.LDAPTokenIssuer{
 		LDAPAuthenticator: ldapClient,
 		TokenSigner:       tokenSigner,
-		GroupFilter:       fmt.Sprintf("%s",flGroupFilter),
+		GroupFilter:       *flGroupFilter,
 		ExpireTime:        *flTokenExpireTime,
 	}
 

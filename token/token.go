@@ -46,6 +46,7 @@ func GenerateKeypair(filename string) (err error) {
 		return
 	}
 	pub := priv.Public()
+
 	pubKeyPEM, err := x509.MarshalPKIXPublicKey(pub)
 	if err != nil {
 		return fmt.Errorf("Error marshalling public key: %v", err)
@@ -67,7 +68,7 @@ func GenerateKeypair(filename string) (err error) {
 
 	}
 
-	log.Println("Writing key data tot files")
+	log.Println("Writing key data to files")
 
 	err = ioutil.WriteFile(filename+".priv", keyPEM, os.FileMode(0600))
 	err = ioutil.WriteFile(filename+".pub", pubKeyPEM, os.FileMode(0644))
@@ -86,7 +87,7 @@ func writeSigningSecret(privKey, pubKey []byte) error {
 	newSecret := v1.Secret{
 		Type:v1.SecretTypeOpaque,
 		ObjectMeta: metav1.ObjectMeta{Name: getSecretName()},
-		StringData: map[string]string{"signing.pub": string(pubKey[:]), "signing.priv": string(privKey[:])},
+		Data: map[string][]byte{"signing.priv": privKey, "signing.pub": pubKey},
 	}
 
 	_ , err := getK8sClient().CoreV1().Secrets(getNamespace()).Create(&newSecret)
@@ -103,6 +104,7 @@ func readSigningSecret() (*v1.Secret, error) {
 	if err != nil{
 		return nil, err
 	}
+
 	return secret, nil
 }
 

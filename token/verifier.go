@@ -34,7 +34,7 @@ func NewVerifier(basename string) (Verifier, error) {
 	}
 	rsaPublicKey, ok := pubKey.(*rsa.PublicKey)
 	if !ok {
-		return nil, fmt.Errorf("Expected the public key to use ECDSA, but got a key of type %T", pubKey)
+		return nil, fmt.Errorf("Expected the public key to use RSA, but got a key of type %T", pubKey)
 	}
 	v := &rsaVerifier{
 		publicKey: rsaPublicKey,
@@ -61,7 +61,7 @@ func (ev *rsaVerifier) Verify(s string) (token *AuthToken, err error) {
 	}
 
 	//check epire time
-	if time.Now().Before(token.Exp) {
+	if time.Now().After(token.Exp) {
 		return nil, errors.New("Token has expired!")
 	}
 
