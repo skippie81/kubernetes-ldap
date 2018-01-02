@@ -16,6 +16,7 @@ import (
 
 const (
 	usage = "kubernetes-ldap <options>"
+	version = "v1.0.0"
 )
 
 // Define input flags
@@ -42,6 +43,9 @@ var flTLSCertFile = flag.String("tls-cert-file", "",
 var flTLSPrivateKeyFile = flag.String("tls-private-key-file", "", "File containing x509 private key matching --tls-cert-file.")
 var flUseTls = flag.Bool("use-tls",true,"Use tls for webhook server")
 
+// other flags
+var flVersion = flag.Bool("version",false,"print version and exit")
+
 func init() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s\n", usage)
@@ -52,6 +56,12 @@ func init() {
 func main() {
 	// parse the imput flags
 	flag.Parse()
+
+	//print verion and exit
+	if *flVersion {
+		fmt.Printf("Kubernetes-Ldap webhook server version: %s\n",version)
+		os.Exit(0)
+	}
 
 	// validate required flags
 	requireFlag("--ldap-host", flLdapHost)
