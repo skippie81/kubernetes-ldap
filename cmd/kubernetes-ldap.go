@@ -29,6 +29,7 @@ var flSearchUserDN = flag.String("ldap-search-user-dn", "", "Search user DN for 
 var flSearchUserPassword = flag.String("ldap-search-user-password", "", "Search user password")
 var flSkipLdapTLSVerification = flag.Bool("ldap-skip-tls-verification", false, "Skip LDAP server TLS verification")
 var flGroupFilter = flag.String("group-filter","","Regex to filter group membership")
+var flUsernameAttribute = flag.String("token-username-attribute","mail","LDAP attribute to use for username in token")
 
 // Token options
 var flTokenExpireTime = flag.Int("token-expire-time",12,"Time in hours the issued token is valid")
@@ -101,10 +102,11 @@ func main() {
 	webhook := auth.NewTokenWebhook(tokenVerifier)
 
 	ldapTokenIssuer := &auth.LDAPTokenIssuer{
-		LDAPAuthenticator: ldapClient,
-		TokenSigner:       tokenSigner,
-		GroupFilter:       *flGroupFilter,
-		ExpireTime:        *flTokenExpireTime,
+		LDAPAuthenticator: 	ldapClient,
+		TokenSigner:       	tokenSigner,
+		GroupFilter:       	*flGroupFilter,
+		ExpireTime:        	*flTokenExpireTime,
+		UsernameLDAPAttribute 	*flUsernameAttribute,
 	}
 
 	// Endpoint for authenticating with token

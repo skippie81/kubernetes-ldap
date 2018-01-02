@@ -16,20 +16,24 @@ import (
 // LDAPTokenIssuer issues cryptographically secure tokens after authenticating the
 // user against a backing LDAP directory.
 type LDAPTokenIssuer struct {
-	LDAPServer        string
-	LDAPAuthenticator ldap.Authenticator
-	TokenSigner       token.Signer
-	GroupFilter	      string
-	ExpireTime        int
+	LDAPServer        	string
+	LDAPAuthenticator 	ldap.Authenticator
+	TokenSigner       	token.Signer
+	GroupFilter	  	string
+	ExpireTime        	int
+	UsernameLDAPAttribute	string
 }
 
 func (lti *LDAPTokenIssuer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	user, password, ok := req.BasicAuth()
+
 	if !ok {
 		resp.Header().Add("WWW-Authenticate", `Basic realm="kubernetes ldap"`)
 		resp.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+
+	glog.Infof("Got authentication request for user: %s",user)
 
 	// Authenticate the user via LDAP
 	ldapEntry, err := lti.LDAPAuthenticator.Authenticate(user, password)
@@ -40,7 +44,12 @@ func (lti *LDAPTokenIssuer) ServeHTTP(resp http.ResponseWriter, req *http.Reques
 	}
 
 	// Auth was successful, create token
+	glog.Info("Authentication sucessfull")
 	token := lti.createToken(ldapEntry)
+
+	glog.Infof("Token username: %s",token.Username)
+	glog.Infof("Token expire time: %s",token.Exp)
+	glog.Infof("Token has folloing groups: %s",token.Groups)
 
 	// Sign token and return
 	signedToken, err := lti.TokenSigner.Sign(token)
@@ -94,8 +103,13 @@ func (lti *LDAPTokenIssuer) getGroupsFromMembersOf(membersOf []string) []string 
 }
 
 func (lti *LDAPTokenIssuer) createToken(ldapEntry *goldap.Entry) *token.AuthToken {
+	// if attribute for username is empty use mail
+	if lti.UsernameLDAPAttribute == "" {
+		lti.UsernameLDAPAttribute = "mail"
+	}
+
 	return &token.AuthToken{
-		Username: ldapEntry.GetAttributeValue("mail"),
+		Username: ldapEntry.GetAttributeValue(lti.UsernameLDAPAttribute),
 		Exp: time.Now().Add(time.Hour * time.Duration(lti.ExpireTime)),
 		Groups: lti.getGroupsFromMembersOf(ldapEntry.GetAttributeValues("memberOf")),
 		Assertions: map[string]string{
