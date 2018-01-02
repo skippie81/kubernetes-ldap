@@ -134,14 +134,13 @@ func main() {
 		TLSConfig: TLSConfig,
 	}
 
-
+	// starting public server
+	glog.Infof("Serving /healthz on %s", fmt.Sprintf(":%d", *flhHealthzPort))
+	go publicServer.ListenAndServe()
+	glog.Infof("Serving /healthz on %s", fmt.Sprintf(":%d", *flhHealthzPort))
+	// starting api server
 	glog.Infof("Serving /authenticate on %s", fmt.Sprintf(":%d", *flServerPort))
 	glog.Infof("Serving /ldapAuth on %s", fmt.Sprintf(":%d", *flServerPort))
-	glog.Infof("Serving /healthz on %s", fmt.Sprintf(":%d", *flhHealthzPort))
-
-	// starting public server
-	go publicServer.ListenAndServe()
-	// starting api server
 	if *flUseTls {
 		glog.Fatal(sslServer.ListenAndServeTLS(*flTLSCertFile, *flTLSPrivateKeyFile))
 	} else {
