@@ -125,6 +125,9 @@ func main() {
 	// Endpoint for token issuance after LDAP auth
 	sslRouter.Handle("/ldapAuth", ldapTokenIssuer)
 
+	// Endpoint for healthz on ssl port
+	sslRouter.HandleFunc("/healthz", healthz)
+
 	// Endpoint for livenessProbe
 	publicRouter.HandleFunc("/healthz", healthz)
 
@@ -147,7 +150,6 @@ func main() {
 	}
 
 	// starting public server
-	glog.Infof("Serving /healthz on %s", fmt.Sprintf(":%d", *flhHealthzPort))
 	go publicServer.ListenAndServe()
 	glog.Infof("Serving /healthz on %s", fmt.Sprintf(":%d", *flhHealthzPort))
 	// starting api server
