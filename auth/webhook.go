@@ -51,6 +51,7 @@ func (tw *TokenWebhook) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		User: UserInfo{
 			Username: token.Username,
 			Groups: token.Groups,
+			Extra: map[string]string{ "Exp": string(token.Exp) },
 		},
 	}
 
