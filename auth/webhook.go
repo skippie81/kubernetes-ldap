@@ -46,12 +46,12 @@ func (tw *TokenWebhook) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	}
 
 	// Token is valid.
+
 	trr.Status = TokenReviewStatus{
 		Authenticated: true,
 		User: UserInfo{
 			Username: token.Username,
 			Groups: token.Groups,
-			Extra: map[string]string{ "Exp": string(token.Exp) },
 		},
 	}
 
