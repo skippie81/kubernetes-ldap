@@ -65,6 +65,9 @@ func (c *Client) Authenticate(username, password string) (*ldap.Entry, error) {
 	// let's do user bind to check credentials using the full DN instead of
 	// the attribute used for search
 	if c.SearchUserDN != "" && c.SearchUserPassword != "" {
+		if password == "" {
+			return nil,Errorf("Cannot user empty password for %s" , username)
+		}
 		err = conn.Bind(res.Entries[0].DN, password)
 		if err != nil {
 			return nil, fmt.Errorf("Error binding user %s, invalid credentials: %v", username, err)
