@@ -66,7 +66,7 @@ func (c *Client) Authenticate(username, password string) (*ldap.Entry, error) {
 	// the attribute used for search
 	if c.SearchUserDN != "" && c.SearchUserPassword != "" {
 		if password == "" {
-			return nil,Errorf("Cannot user empty password for %s" , username)
+			return nil, fmt.Errorf("Cannot user empty password for %s", username)
 		}
 		err = conn.Bind(res.Entries[0].DN, password)
 		if err != nil {
